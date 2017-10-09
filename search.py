@@ -134,11 +134,12 @@ def graph_search(problem, fringe):
     while fringe:
         node = fringe.pop()
         if problem.goal_test(node.state):
-            print("Number of nodes visited: " + str(len(closed)))
+            print("Number of nodes visited: " + str(len(closed) + 1))
             return node
         if node.state not in closed:
             closed[node.state] = True
             fringe.extend(node.expand(problem))
+            #print("Fringe size: " + str(len(fringe)))
     return None
 
 def breadth_first_graph_search(problem):

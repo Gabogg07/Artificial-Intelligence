@@ -2,6 +2,7 @@
 import time
 import sys
 import math
+
 from search import *
 from copy import copy, deepcopy
 import datetime
@@ -15,9 +16,11 @@ now = datetime.datetime.now()
 class Kubmic(Problem):
     def successor(self, state):
         num_rows = state.nbr
-        for direction in ("U", "D", "L", "R"):
+        skip = True
+        for direction in ("U", "L"):
             for k in range(1, num_rows):
                 for a in range(0, num_rows):
+                    skip = True
                     new_state = deepcopy(state)
                     for b in range(0, num_rows):
                         if direction == "U":
@@ -28,14 +31,29 @@ class Kubmic(Problem):
                             new_state.grid[a][b - k] = state.grid[a][b]
                         elif direction == "R":
                             new_state.grid[a][((b + k) % num_rows)] = state.grid[a][b]
-                    if direction == "U":
+                        if skip and self.checkRepetition(state.grid, direction, a, b):
+                            skip = False
+                    if skip:
+                        #print("skipping" + str(a) + ", " + str(b))
+                        continue
+                    elif direction == "U":
+                        #print("yield" + str(a) + ", " + str(b))
                         yield "↑ Col " + str(a + 1) + ": +" + str(k), new_state
                     elif direction == "D":
+                        #print("yield" + str(a) + ", " + str(b))
                         yield "↓ Col " + str(a + 1) + ": -" + str(k), new_state
                     elif direction == "R":
+                        #print("yield" + str(a) + ", " + str(b))
                         yield "→ Row " + str(a + 1) + ": +" + str(k), new_state
                     elif direction == "L":
+                        #print("yield" + str(a) + ", " + str(b))
                         yield "← Row " + str(a + 1) + ": -" + str(k), new_state
+
+    def checkRepetition(self, grid, direction, a, b):
+        return (direction == 'U' or direction == 'D') and (b < (len(grid) - 1) and grid[b][a] != grid[b - 1][a]) or \
+               (direction == 'R' or direction == 'L') and (b < (len(grid) - 1) and grid[a][b] != grid[a][b - 1]) or \
+               False
+
 
 ###############
 # State class #
@@ -98,7 +116,7 @@ print(goal_state)
 problem = Kubmic(init_state, goal_state)
 
 # example of bfs graph search
-node = breadth_first_graph_search(problem)
+node = iterative_deepening_search(problem)
 
 # example of print
 path = node.path()
