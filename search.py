@@ -8,6 +8,7 @@ from utils import *
 import sys
 import math
 import random
+from copy import copy, deepcopy
 
 #______________________________________________________________________________
 
@@ -94,10 +95,10 @@ class Node:
                 problem.path_cost(self.path_cost, self.state, act, next))
 
     def __str__(self):
-        if self.parent != None and self.action != None and self.path_cost != None:
-            return 'State:\n' + str(self.state) + '\nAction:\n' + str(self.action) + "\nPath cost:\n" + str(self.path_cost)
+        if self.action != None:
+            return str(self.action) + "\n" + str(self.state)
         else:
-            return 'State:\n' + str(self.state)
+            return str(self.state)
 
 
 #______________________________________________________________________________
@@ -127,15 +128,16 @@ def graph_search(problem, fringe):
     """Search through the successors of a problem to find a goal.
     The argument fringe should be an empty queue.
     If two paths reach a state, only use the best one. [Fig. 3.18]"""
-    closed = []
+    closed = {}
     fringe.append(Node(problem.initial))
 
     while fringe:
         node = fringe.pop()
-        if problem.goal_test(node.state): 
+        if problem.goal_test(node.state):
+            print("Number of nodes visited: " + str(len(closed)))
             return node
         if node.state not in closed:
-            closed.append(node.state)
+            closed[node.state] = True
             fringe.extend(node.expand(problem))
     return None
 

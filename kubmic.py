@@ -4,11 +4,14 @@ import sys
 import math
 from search import *
 from copy import copy, deepcopy
-
+import datetime
 
 #################
 # Problem class #
 #################
+now = datetime.datetime.now()
+
+
 class Kubmic(Problem):
     def successor(self, state):
         num_rows = state.nbr
@@ -25,13 +28,19 @@ class Kubmic(Problem):
                             new_state.grid[a][b - k] = state.grid[a][b]
                         elif direction == "R":
                             new_state.grid[a][((b + k) % num_rows)] = state.grid[a][b]
-                    yield direction + str(k) + " - (" + str(a) + ")", new_state
-
-
+                    if direction == "U":
+                        yield "↑ Col " + str(a + 1) + ": +" + str(k), new_state
+                    elif direction == "D":
+                        yield "↓ Col " + str(a + 1) + ": -" + str(k), new_state
+                    elif direction == "R":
+                        yield "→ Row " + str(a + 1) + ": +" + str(k), new_state
+                    elif direction == "L":
+                        yield "← Row " + str(a + 1) + ": -" + str(k), new_state
 
 ###############
 # State class #
 ###############
+
 
 class State:
     def __init__(self, grid):
@@ -49,8 +58,16 @@ class State:
         return s
 
     def __eq__(self, other):
-        return self.grid == other.grid
+        return str(self.grid) == str(other.grid)
 
+    def __hash__(self):
+        return hash(str(self.grid))
+
+
+class Result:
+    def __init__(self, goal_node, num_visited_nodes):
+        self.goal_node = goal_node
+        self.num_visited_nodes = num_visited_nodes
 
 ###################### 
 # Auxiliary function #
@@ -69,14 +86,14 @@ def readInstanceFile(filename):
 # Launch the search #
 #####################
 
-grid_init, grid_goal = readInstanceFile("/Users/stefanosambruna/PycharmProjects/AIassignment1/instances/a03")
+grid_init, grid_goal = readInstanceFile("/Users/stefanosambruna/PycharmProjects/AIassignment1/instances/a04")
 init_state = State(grid_init)
 goal_state = State(grid_goal)
-print('- Instance: --')
+print('-- a04 --')
+print('Instance:')
 print(init_state)
-print('')
+print('\nGoal:')
 print(goal_state)
-print('--------------')
 
 problem = Kubmic(init_state, goal_state)
 
@@ -88,15 +105,24 @@ path = node.path()
 path.reverse()
 
 
-def comments(comm):
-    return '\033[1;36;40m' + comm + '\033[0m'
+''' 
+                if (direction == "U"):
+                    yield "↑ Col " + str(a + 1) + direction + str(k) + " - " + str(a), new_state
+                elif (direction == "D"):
+                    yield "↓ Col " + str(a + 1) + direction + str(k) + " - " + str(a), new_state
+                elif (direction == "R"):
+                    yield "→ Row " + str(a + 1) + direction + str(k) + " - " + str(a), new_state
+                elif (direction == "L"):
+                    yield "← Row " + str(a + 1) + direction + str(k) + " - " + str(a), new_state
 
 
-print('Number of moves: ' + str(node.depth))
-print('Here the fucking solution: ')
-for n in path:
-    '''print(comments(
-        '\u2193 ' + n))  # assuming the comment attribute of state contains a relevant string (e.g. describing the current move)
-    print(n.state)  # assuming that the __str__ function of state outputs the correct format'''
-    print("---------------------")
+'''
+
+then = datetime.datetime.now()
+print('\nSolution: ')
+print('- Number of moves: ' + str(node.depth))
+print("- Duration: " + str(then-now))
+
+for n in path[1:]:
+    print()
     print(n)

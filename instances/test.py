@@ -28,8 +28,14 @@ def generator(state):
                         new_state.grid[a][b - k] = state.grid[a][b]
                     elif direction == "R":
                         new_state.grid[a][((b + k) % num_rows)] = state.grid[a][b]
-                yield direction + str(k) + " - (" + str(a) + ")", new_state
-
+                if direction == "U":
+                    yield "↑ Col " + str(a + 1) + ": +" + str(k), new_state
+                elif direction == "D":
+                    yield "↓ Col " + str(a + 1) + ": -" + str(k), new_state
+                elif direction == "R":
+                    yield "→ Row " + str(a + 1) + ": +" + str(k), new_state
+                elif direction == "L":
+                    yield "← Row " + str(a + 1) + ": -" + str(k), new_state
 
 class State:
     def __init__(self, grid):
