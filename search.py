@@ -76,10 +76,6 @@ class Node:
     def __repr__(self):
         return "<Node %s>" % (self.state,)
 
-    def __eq__(self, other):
-        if other == None: return False
-        else: return self.state == other.state
-
     def path(self):
         "Create a list of nodes from the root to this node."
         x, result = self, [self]
@@ -90,7 +86,7 @@ class Node:
 
     def expand(self, problem):
         "Yield the nodes reachable from this node. [Fig. 3.8]"
-        for (act,next) in problem.successor(self.state):
+        for (act, next) in problem.successor(self.state):
             yield Node(next, self, act,
                 problem.path_cost(self.path_cost, self.state, act, next))
 
