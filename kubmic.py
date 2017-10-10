@@ -49,11 +49,8 @@ class Kubmic(Problem):
             for k in range(1, state.nbr):
                 for a in range(0, state.nbr):
                     new_state = deepcopy(state)
-                    if len(\
-                            [b for b in range(0, state.nbr) \
-                             if (direction == 'V') and (b < (len(state.grid) - 1) and state.grid[b][a] != state.grid[b - 1][a]) or \
-                                             (direction == 'H') and (b < (len(state.grid) - 1) and state.grid[a][b] != state.grid[a][b - 1])]) == 0:
-                        break
+                    if len([b for b in range(1, state.nbr) if (direction == 'V') and state.grid[b][a] != state.grid[b - 1][a] or (direction == 'H') and state.grid[a][b] != state.grid[a][b - 1]]) == 0:
+                        continue
                     for b in range(0, state.nbr):
                         if direction == "V":
                             new_state.grid[b - k][a] = state.grid[b][a]
@@ -72,9 +69,50 @@ class Kubmic(Problem):
                     new_state.comment = s + str(k)
                     yield new_state.comment, new_state
 
+    '''def successor(self, state):
+        num_rows = state.nbr
+        skip = True
+        for direction in ("U", "L"):
+            for k in range(1, num_rows):
+                for a in range(0, num_rows):
+                    skip = True
+                    new_state = deepcopy(state)
+                    for b in range(0, num_rows):
+                        if direction == "U":
+                            new_state.grid[b - k][a] = state.grid[b][a]
+                        elif direction == "D":
+                            new_state.grid[((b + k) % num_rows)][a] = state.grid[b][a]
+                        elif direction == "L":
+                            new_state.grid[a][b - k] = state.grid[a][b]
+                        elif direction == "R":
+                            new_state.grid[a][((b + k) % num_rows)] = state.grid[a][b]
+                        if skip and self.checkRepetition(state.grid, direction, a, b):
+                            skip = False
+                    if skip:
+                        # print("skipping" + str(a) + ", " + str(b))
+                        continue
+                    if direction == "V":
+                        if state.nbr - k < 0:
+                            s = "Col " + str(a + 1) + ": -"
+                        else:
+                            s = "Col " + str(a + 1) + ": +"
+                    else:
+                        if state.nbr - k < 0:
+                            s = "Row " + str(a + 1) + ": -"
+                        else:
+                            s = "Row " + str(a + 1) + ": +"
+                    new_state.comment = s + str(k)
+                    yield new_state.comment, new_state
+
+    def checkRepetition(self, grid, direction, a, b):
+        return (direction == 'U' or direction == 'D') and (
+                        b < (len(grid) - 1) and grid[b][a] != grid[b - 1][a]) or \
+                               (direction == 'R' or direction == 'L') and (
+                               b < (len(grid) - 1) and grid[a][b] != grid[a][b - 1]) or \
+                               False
 
 
-
+'''
 ###############
 # State class #
 ###############
@@ -148,7 +186,8 @@ path.reverse()
 def comments(comm):
     return '\033[1;36;40m' + comm + '\033[0m'
 
-
+then = datetime.datetime.now()
+print("- Duration: " + str(then-now))
 #print('Number of moves: ' + str(node.depth))
 for n in path:
     print(comments(
