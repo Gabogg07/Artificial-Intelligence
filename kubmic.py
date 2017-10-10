@@ -61,15 +61,16 @@ class Kubmic(Problem):
                             new_state.grid[a][b - k] = state.grid[a][b]
                     if direction == "V":
                         if state.nbr - k < 0:
-                            s = "↓ Col " + str(a + 1) + ": -"
+                            s = "Col " + str(a + 1) + ": -"
                         else:
-                            s = "↑ Col " + str(a + 1) + ": +"
+                            s = "Col " + str(a + 1) + ": +"
                     else:
                         if state.nbr - k < 0:
-                            s = "← Row " + str(a + 1) + ": -"
+                            s = "Row " + str(a + 1) + ": -"
                         else:
-                            s = "→ Row " + str(a + 1) + ": +"
-                    yield s + str(k), new_state
+                            s = "Row " + str(a + 1) + ": +"
+                    new_state.comment = s + str(k)
+                    yield new_state.comment, new_state
 
 
 
@@ -84,6 +85,7 @@ class State:
         self.nbr = len(grid)
         self.nbc = len(grid[0])
         self.grid = grid
+        self.comment = ''
 
     def __str__(self):
         s = ''
@@ -118,7 +120,44 @@ def readInstanceFile(filename):
 
     return grid_init, grid_goal
 
+#####################
+# Launch the search #
+#####################
 
+#grid_init, grid_goal = readInstanceFile(sys.argv[1])
+grid_init, grid_goal = readInstanceFile("/Users/stefanosambruna/PycharmProjects/AIassignment1/instances/a01")
+init_state = State(grid_init)
+goal_state = State(grid_goal)
+# print('- Instance: --')
+# print(init_state)
+# print('')
+# print(goal_state)
+# print('--------------')
+
+init_state.comment = "init"
+problem = Kubmic(init_state, goal_state)
+
+# example of bfs graph search
+node = breadth_first_graph_search(problem)
+
+# example of print
+path = node.path()
+path.reverse()
+
+
+def comments(comm):
+    return '\033[1;36;40m' + comm + '\033[0m'
+
+
+#print('Number of moves: ' + str(node.depth))
+for n in path:
+    print(comments(
+        '\u2193 ' + n.state.comment))  # assuming the comment attribute of state contains a relevant string (e.g. describing the current move)
+    print(n.state)  # assuming that the __str__ function of state outputs the correct format
+    print()
+
+
+'''
 #####################
 # Launch the search #
 #####################
@@ -136,28 +175,13 @@ problem = Kubmic(init_state, goal_state)
 
 # example of bfs graph search
 node = breadth_first_graph_search(problem)
-if node == None:
+if node is None:
     print("No solution found!")
     quit()
 # example of print
 path = node.path()
 path.reverse()
 
-
-''' 
-                                    if direction == "V":
-                        if num_rows - k < 0:
-                            s = "↓ Col " + str(a + 1) + ": -"
-                        else:
-                            s = "↑ Col " + str(a + 1) + ": +"
-                    else:
-                        if num_rows - k < 0:
-                            s = "← Row " + str(a + 1) + ": -"
-                        else:
-                            s = "→ Row " + str(a + 1) + ": +"
-
-
-'''
 
 then = datetime.datetime.now()
 print('\nSolution: ')
@@ -167,3 +191,6 @@ print("- Duration: " + str(then-now))
 for n in path[1:]:
     print()
     print(n)
+
+
+'''

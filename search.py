@@ -134,7 +134,6 @@ def graph_search(problem, fringe):
     while fringe:
         node = fringe.pop()
         if problem.goal_test(node.state):
-            print("Number of nodes visited: " + str(len(closed) + 1))
             return node
         if node.state not in closed:
             closed[node.state] = True
@@ -145,7 +144,7 @@ def graph_search(problem, fringe):
 def breadth_first_graph_search(problem):
     "Search the shallowest nodes in the search tree first. [p 74]"
     return graph_search(problem, FIFOQueue())
-    
+
 def depth_first_graph_search(problem):
     "Search the deepest nodes in the search tree first. [p 74]"
     return graph_search(problem, Stack())
@@ -163,7 +162,7 @@ def depth_limited_search(problem, limit=50):
                 result = recursive_dls(successor, problem, limit)
                 if result == 'cutoff':
                     cutoff_occurred = True
-                elif result != None:
+                elif result is not None:
                     return result
         if cutoff_occurred:
             return 'cutoff'
