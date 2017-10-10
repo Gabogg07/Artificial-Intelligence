@@ -2,6 +2,7 @@
 import time
 import sys
 import math
+from functools import *
 
 from search import *
 from copy import copy, deepcopy
@@ -14,45 +15,63 @@ now = datetime.datetime.now()
 
 
 class Kubmic(Problem):
-    def successor(self, state):
+    '''def successor(self, state):
         num_rows = state.nbr
         skip = True
-        for direction in ("U", "L"):
+        for direction in ("V", "H"):
             for k in range(1, num_rows):
                 for a in range(0, num_rows):
                     skip = True
                     new_state = deepcopy(state)
                     for b in range(0, num_rows):
-                        if direction == "U":
+                        if direction == "V":
                             new_state.grid[b - k][a] = state.grid[b][a]
-                        elif direction == "D":
-                            new_state.grid[((b + k) % num_rows)][a] = state.grid[b][a]
-                        elif direction == "L":
+                        elif direction == "H":
                             new_state.grid[a][b - k] = state.grid[a][b]
-                        elif direction == "R":
-                            new_state.grid[a][((b + k) % num_rows)] = state.grid[a][b]
-                        if skip and self.checkRepetition(state.grid, direction, a, b):
+                        if skip and (direction == 'V') and (b < (len(state.grid) - 1) and state.grid[b][a] != state.grid[b - 1][a]) or (direction == 'H') and (b < (len(state.grid) - 1) and state.grid[a][b] != state.grid[a][b - 1]) or False:
                             skip = False
                     if skip:
-                        #print("skipping" + str(a) + ", " + str(b))
                         continue
-                    elif direction == "U":
-                        #print("yield" + str(a) + ", " + str(b))
-                        yield "↑ Col " + str(a + 1) + ": +" + str(k), new_state
-                    elif direction == "D":
-                        #print("yield" + str(a) + ", " + str(b))
-                        yield "↓ Col " + str(a + 1) + ": -" + str(k), new_state
-                    elif direction == "R":
-                        #print("yield" + str(a) + ", " + str(b))
-                        yield "→ Row " + str(a + 1) + ": +" + str(k), new_state
-                    elif direction == "L":
-                        #print("yield" + str(a) + ", " + str(b))
-                        yield "← Row " + str(a + 1) + ": -" + str(k), new_state
+                    elif direction == "V":
+                        if num_rows - k < 0:
+                            s = "↓ Col " + str(a + 1) + ": -"
+                        else:
+                            s = "↑ Col " + str(a + 1) + ": +"
+                    elif direction == "H":
+                        if num_rows - k < 0:
+                            s = "← Row " + str(a + 1) + ": -"
+                        else:
+                            s = "→ Row " + str(a + 1) + ": +"
+                    yield s + str(k), new_state'''
 
-    def checkRepetition(self, grid, direction, a, b):
-        return (direction == 'U' or direction == 'D') and (b < (len(grid) - 1) and grid[b][a] != grid[b - 1][a]) or \
-               (direction == 'R' or direction == 'L') and (b < (len(grid) - 1) and grid[a][b] != grid[a][b - 1]) or \
-               False
+    def successor(self, state):
+        for direction in ("V", "H"):
+            for k in range(1, state.nbr):
+                for a in range(0, state.nbr):
+                    new_state = deepcopy(state)
+                    if len(\
+                            [b for b in range(0, state.nbr) \
+                             if (direction == 'V') and (b < (len(state.grid) - 1) and state.grid[b][a] != state.grid[b - 1][a]) or \
+                                             (direction == 'H') and (b < (len(state.grid) - 1) and state.grid[a][b] != state.grid[a][b - 1])]) == 0:
+                        break
+                    for b in range(0, state.nbr):
+                        if direction == "V":
+                            new_state.grid[b - k][a] = state.grid[b][a]
+                        elif direction == "H":
+                            new_state.grid[a][b - k] = state.grid[a][b]
+                    if direction == "V":
+                        if state.nbr - k < 0:
+                            s = "↓ Col " + str(a + 1) + ": -"
+                        else:
+                            s = "↑ Col " + str(a + 1) + ": +"
+                    else:
+                        if state.nbr - k < 0:
+                            s = "← Row " + str(a + 1) + ": -"
+                        else:
+                            s = "→ Row " + str(a + 1) + ": +"
+                    yield s + str(k), new_state
+
+
 
 
 ###############
@@ -104,7 +123,7 @@ def readInstanceFile(filename):
 # Launch the search #
 #####################
 
-grid_init, grid_goal = readInstanceFile("/Users/stefanosambruna/PycharmProjects/AIassignment1/instances/a04")
+grid_init, grid_goal = readInstanceFile("/Users/stefanosambruna/PycharmProjects/AIassignment1/instances/a01")
 init_state = State(grid_init)
 goal_state = State(grid_goal)
 print('-- a04 --')
@@ -116,22 +135,26 @@ print(goal_state)
 problem = Kubmic(init_state, goal_state)
 
 # example of bfs graph search
-node = iterative_deepening_search(problem)
-
+node = breadth_first_graph_search(problem)
+if node == None:
+    print("No solution found!")
+    quit()
 # example of print
 path = node.path()
 path.reverse()
 
 
 ''' 
-                if (direction == "U"):
-                    yield "↑ Col " + str(a + 1) + direction + str(k) + " - " + str(a), new_state
-                elif (direction == "D"):
-                    yield "↓ Col " + str(a + 1) + direction + str(k) + " - " + str(a), new_state
-                elif (direction == "R"):
-                    yield "→ Row " + str(a + 1) + direction + str(k) + " - " + str(a), new_state
-                elif (direction == "L"):
-                    yield "← Row " + str(a + 1) + direction + str(k) + " - " + str(a), new_state
+                                    if direction == "V":
+                        if num_rows - k < 0:
+                            s = "↓ Col " + str(a + 1) + ": -"
+                        else:
+                            s = "↑ Col " + str(a + 1) + ": +"
+                    else:
+                        if num_rows - k < 0:
+                            s = "← Row " + str(a + 1) + ": -"
+                        else:
+                            s = "→ Row " + str(a + 1) + ": +"
 
 
 '''
