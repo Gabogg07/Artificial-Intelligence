@@ -105,9 +105,12 @@ def tree_search(problem, fringe):
     The argument fringe should be an empty queue.
     Don't worry about repeated paths to a state. [Fig. 3.8]"""
     fringe.append(Node(problem.initial))
+    visited=0
     while fringe:
+        visited+=1
         node = fringe.pop()
         if problem.goal_test(node.state):
+            print("NODOS VISITADOS: " + str(visited))
             return node
         fringe.extend(node.expand(problem))
     return None
@@ -130,6 +133,8 @@ def graph_search(problem, fringe):
     while fringe:
         node = fringe.pop()
         if problem.goal_test(node.state):
+            print("NUMBER OF NODES: " + str(len(closed)+1))
+
             return node
         if node.state not in closed:
             closed[node.state] = True
@@ -147,15 +152,18 @@ def depth_first_graph_search(problem):
 
 def depth_limited_search(problem, limit=50):
     "[Fig. 3.12]"
-    def recursive_dls(node, problem, limit):
+
+    def recursive_dls(node, problem, visited, limit):
+        visited += 1
         cutoff_occurred = False
         if problem.goal_test(node.state):
+            print("Nodos :" + str(visited))
             return node
         elif node.depth == limit:
             return 'cutoff'
         else:
             for successor in node.expand(problem):
-                result = recursive_dls(successor, problem, limit)
+                result = recursive_dls(successor, problem, visited, limit)
                 if result == 'cutoff':
                     cutoff_occurred = True
                 elif result is not None:
@@ -163,9 +171,12 @@ def depth_limited_search(problem, limit=50):
         if cutoff_occurred:
             return 'cutoff'
         else:
+            print("Nodos :" + str(visited))
             return None
+
     # Body of depth_limited_search:
-    return recursive_dls(Node(problem.initial), problem, limit)
+    return recursive_dls(Node(problem.initial), problem, 0, limit)
+
 
 def iterative_deepening_search(problem):
     "[Fig. 3.13]"
@@ -173,7 +184,6 @@ def iterative_deepening_search(problem):
         result = depth_limited_search(problem, depth)
         if result is not 'cutoff':
             return result
-
 
 
 
