@@ -99,10 +99,19 @@ def add_into_the_queue(queue, new_node, closed):
         path_to_bridge[0].parent = path_to_goal[len(path_to_goal) - 1]
         return path_to_goal[0]'''
 
-def success(problem,goal_node, qi, qg, initial):
-    if (problem.initial == goal_node.state):
+def exctractMoveFromAction(action):
+    reverse_number_string = ''
+    for i in range((len(action) - 1), 0, -1):
+        if action[i].isdigit():
+            reverse_number_string += action[i]
+        else:
+            return i, int(reverse_number_string[::-1])
+
+
+def success(my_problem, goal_node, qi, qg, initial):
+    if my_problem.initial == goal_node.state:
         return goal_node.path.reverse()
-    elif (problem.goal == goal_node.state):
+    elif my_problem.goal == goal_node.state:
         return goal_node.path
     if initial:
         bridge_node = list(filter(lambda e: e.state == goal_node.state, qg.A))[0]
@@ -113,12 +122,16 @@ def success(problem,goal_node, qi, qg, initial):
         path_to_goal[1].parent=path_to_bridge[-1]
 
         for n in range(1,len(path_to_goal)-1):
-            path_to_goal[n+1].parent=path_to_goal[n]
+            path_to_goal[n+1].parent = path_to_goal[n]
 
-        for n in range(1,len(path_to_goal) - 1):
-           path_to_goal[len(path_to_goal) - n].action=path_to_goal[len(path_to_goal) - n -1].action
+        for n in range(len(path_to_goal) - 1, 0, -1):
+            path_to_goal[n].action = path_to_goal[n -1].action
 
-        print("PATH TO BRIDGE")
+        for n in range(1, len(path_to_goal)):
+            pos, num = exctractMoveFromAction(path_to_goal[len(path_to_goal) - n].action)
+            path_to_goal[len(path_to_goal) - n].action = path_to_goal[len(path_to_goal) - n].action[0:pos + 1] + str(goal_node.state.nbr - num)
+        return path_to_goal[-1]
+        '''print("PATH TO BRIDGE")
         for n in path_to_bridge:
             print(
                 n.action)  # assuming the comment attribute of state contains a relevant string (e.g. describing the current move)
@@ -128,7 +141,7 @@ def success(problem,goal_node, qi, qg, initial):
         for n in path_to_goal:
             print(n.action)
             print(n.state)  # assuming that the __str__ function of state outputs the correct format
-            print()
+            print()'''
 
 
     else:
@@ -185,7 +198,7 @@ def bidirectional_breadth_search(problem, qi, qg):
 #####################
 
 #grid_init, grid_goal = readInstanceFile(sys.argv[1])
-grid_init, grid_goal = readInstanceFile("/Users/stefanosambruna/PycharmProjects/AIassignment1/instances/a01")
+grid_init, grid_goal = readInstanceFile("/Users/stefanosambruna/PycharmProjects/AIassignment1/instances/a03")
 init_state = State(grid_init)
 goal_state = State(grid_goal)
 # print('- Instance: --')
@@ -198,19 +211,19 @@ problem = Kubmic(init_state, goal_state)
 
 # example of bfs graph search
 #node = iterative_deepening_search(problem)
-bidirectional_breadth_search(problem, FIFOQueue(), FIFOQueue())
+node = bidirectional_breadth_search(problem, FIFOQueue(), FIFOQueue())
 # example of print
-'''path = node.path()
+path = node.path()
 path.reverse()
 
 
 def comments(comm):
     return '\033[1;36;40m' + comm + '\033[0m'
-'''
+
 then = datetime.datetime.now()
 print("- Duration: " + str(then-now))
 #print('Number of moves: ' + str(node.depth))
-'''
+
 print(comments(
         '\u2193 init'))  # assuming the comment attribute of state contains a relevant string (e.g. describing the current move)
 print(path[0].state)  # assuming that the __str__ function of state outputs the correct format
@@ -220,5 +233,3 @@ for n in path[1:]:
         '\u2193 ' + n.action))  # assuming the comment attribute of state contains a relevant string (e.g. describing the current move)
     print(n.state)  # assuming that the __str__ function of state outputs the correct format
     print()
-
-'''
